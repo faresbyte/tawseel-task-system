@@ -40,8 +40,9 @@ const AdminDashboard: React.FC = () => {
                 supabase.from('roles').select('*').order('name'),
                 supabase.from('users').select('*, role:roles(*)').order('name'),
                 supabase.from('task_definitions').select('*').order('created_at', { ascending: false }),
-                supabase.from('assignments').select('*, task:task_definitions(*), user:users(*)').order('assigned_at', { ascending: false }),
-                supabase.from('routines').select('*, task:task_definitions(*), user:users(*)').order('created_at', { ascending: false })
+                // Optimize: Fetch only latest 100 items to speed up load
+                supabase.from('assignments').select('*, task:task_definitions(*), user:users(*)').order('assigned_at', { ascending: false }).limit(100),
+                supabase.from('routines').select('*, task:task_definitions(*), user:users(*)').order('created_at', { ascending: false }).limit(100)
             ]);
 
             if (rolesRes.data) setRoles(rolesRes.data);

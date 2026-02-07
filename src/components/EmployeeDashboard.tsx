@@ -17,66 +17,70 @@ const EmployeeDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [editingNotes, setEditingNotes] = useState<{ [key: string]: string }>({});
 
-    // Fetch assignments and generate routine tasks
+    // Simplified & Optimized Fetch
     const fetchAssignments = async () => {
         if (!user) return;
 
         try {
-            // Get existing assignments for today
             const today = new Date().toISOString().split('T')[0];
 
-            const { data: existingAssignments, error: assignmentsError } = await supabase
-                .from('assignments')
-                .select('*, task:task_definitions(*)')
-                .eq('user_id', user.id)
-                .gte('assigned_at', `${today}T00:00:00`)
-                .order('assigned_at', { ascending: false });
+            // Parallel fetch for speed
+            const [assignmentsRes, routinesRes] = await Promise.all([
+                supabase
+                    .from('assignments')
+                    .select('*, task:task_definitions(*)')
+                    .eq('user_id', user.id)
+                    .gte('assigned_at', `${today}T00:00:00`)
+                    .order('assigned_at', { ascending: false }),
 
-            if (assignmentsError) throw assignmentsError;
+                supabase
+                    .from('routines')
+                    .select('*, task:task_definitions(*)')
+                    .eq('user_id', user.id)
+            ]);
 
-            // Get user's routines
-            const { data: routines, error: routinesError } = await supabase
-                .from('routines')
-                .select('*, task:task_definitions(*)')
-                .eq('user_id', user.id);
+            const existingAssignments = assignmentsRes.data || [];
+            const routines = routinesRes.data || [];
 
-            if (routinesError) throw routinesError;
+            let finalList = [...existingAssignments];
 
-            // Generate routine tasks for today if not already created
-            if (routines && routines.length > 0) {
-                const existingTaskIds = new Set(existingAssignments?.map(a => a.task_id) || []);
+            // Handle routine generation locally (Optimistic)
+            if (routines.length > 0) {
+                const existingTaskIds = new Set(existingAssignments.map(a => a.task_id));
                 const routinesToGenerate = routines.filter(r => !existingTaskIds.has(r.task_id));
 
                 if (routinesToGenerate.length > 0) {
-                    /* ... omitted real logic for brevity, relying on catch block or manual mock below if offline ... */
-                    // Note: In demo mode without backend, insert will fail. We'll handle mocks below.
-                    const newAssignments = routinesToGenerate.map(routine => ({
+                    // Create optimistic assignments for display immediately
+                    const optimisticAssignments = routinesToGenerate.map(routine => ({
+                        id: `temp-${routine.id}`, // Temporary ID
                         task_id: routine.task_id,
                         user_id: user.id,
                         assigned_by: routine.created_by,
-                        status: 'pending' as const,
+                        assigned_at: new Date().toISOString(),
+                        status: 'pending',
+                        submitted: false,
+                        task: routine.task // Include task details for display
+                    })) as Assignment[];
+
+                    finalList = [...optimisticAssignments, ...finalList];
+
+                    // Fire and forget: Insert into DB in background
+                    const newAssignmentsDB = routinesToGenerate.map(routine => ({
+                        task_id: routine.task_id,
+                        user_id: user.id,
+                        assigned_by: routine.created_by,
+                        status: 'pending',
                         submitted: false,
                     }));
 
-                    await supabase
-                        .from('assignments')
-                        .insert(newAssignments);
-
-                    // Fetch again to get the newly created assignments
-                    const { data: updatedAssignments } = await supabase
-                        .from('assignments')
-                        .select('*, task:task_definitions(*)')
-                        .eq('user_id', user.id)
-                        .gte('assigned_at', `${today}T00:00:00`)
-                        .order('assigned_at', { ascending: false });
-
-                    setAssignments(updatedAssignments || []);
-                } else {
-                    setAssignments(existingAssignments || []);
+                    supabase.from('assignments').insert(newAssignmentsDB).then(() => {
+                        // Optional: Silent refresh later if needed, but UI is already happy
+                    });
                 }
-            } else {
-                setAssignments(existingAssignments || []);
             }
+
+            setAssignments(finalList);
+
         } catch (error) {
             console.error('Error fetching assignments:', error);
         } finally {

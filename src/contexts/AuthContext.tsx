@@ -78,12 +78,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
             // Fetch user from database
+            // Radical Fix: Simple select to guarantee response
             const { data: users, error } = await supabase
                 .from('users')
-                .select(`
-          *,
-          role:roles(*)
-        `)
+                .select('*') // Just fetch the user, don't join complex tables immediately
                 .eq('email', email.toLowerCase())
                 .single();
 
