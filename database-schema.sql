@@ -105,8 +105,8 @@ INSERT INTO roles (name) VALUES
 -- ملاحظة: في الإنتاج يجب استخدام bcrypt
 INSERT INTO users (email, password, name, role_id, user_type, disabled)
 SELECT 
-    'admin@tawseel.com',
-    '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', -- admin123
+    'fares@gmail.com',
+    '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', -- fares1234
     'مدير النظام',
     NULL,
     'admin',

@@ -111,8 +111,17 @@ const EmployeeDashboard: React.FC = () => {
 
     const handleMarkDone = async (assignment: Assignment) => {
         if (!assignment.submitted) {
+            // Optimistic Update: Reflect change immediately
+            const previousAssignments = [...assignments];
+            const updatedAssignments = assignments.map(a =>
+                a.id === assignment.id
+                    ? { ...a, status: 'done', submitted: true, completed_at: new Date().toISOString() } as Assignment
+                    : a
+            );
+            setAssignments(updatedAssignments);
+
             try {
-                await supabase
+                const { error } = await supabase
                     .from('assignments')
                     .update({
                         status: 'done',
@@ -122,10 +131,12 @@ const EmployeeDashboard: React.FC = () => {
                     })
                     .eq('id', assignment.id);
 
-                fetchAssignments();
+                if (error) throw error;
+                // No need to refetch immediately if successful
             } catch (error) {
                 console.error('Error marking task as done:', error);
-                alert('حدث خطأ');
+                alert('حدث خطأ في الاتصال، تمت إعادة الحالة السابقة');
+                setAssignments(previousAssignments); // Rollback
             }
         }
     };
@@ -139,8 +150,17 @@ const EmployeeDashboard: React.FC = () => {
 
         if (!confirm('هل أنت متأكد من رفض هذه المهمة؟')) return;
 
+        // Optimistic Update
+        const previousAssignments = [...assignments];
+        const updatedAssignments = assignments.map(a =>
+            a.id === assignment.id
+                ? { ...a, status: 'rejected', submitted: true } as Assignment
+                : a
+        );
+        setAssignments(updatedAssignments);
+
         try {
-            await supabase
+            const { error } = await supabase
                 .from('assignments')
                 .update({
                     status: 'rejected',
@@ -149,10 +169,11 @@ const EmployeeDashboard: React.FC = () => {
                 })
                 .eq('id', assignment.id);
 
-            fetchAssignments();
+            if (error) throw error;
         } catch (error) {
             console.error('Error rejecting task:', error);
-            alert('حدث خطأ');
+            alert('حدث خطأ في الاتصال، تمت إعادة الحالة السابقة');
+            setAssignments(previousAssignments); // Rollback
         }
     };
 
