@@ -86,7 +86,17 @@ const AdminDashboard: React.FC = () => {
         { id: 'reports' as TabType, name: 'التقارير', icon: BarChart3 },
     ];
 
+    // Loading indicator inside the content area only
     const renderContent = () => {
+        if (loading) {
+            return (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
+                    <p className="text-gray-500">جاري جلب البيانات...</p>
+                </div>
+            );
+        }
+
         const props = {
             roles,
             users,
@@ -112,17 +122,6 @@ const AdminDashboard: React.FC = () => {
                 return null;
         }
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-                    <p className="text-gray-600 font-semibold">جاري تحميل البيانات...</p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
