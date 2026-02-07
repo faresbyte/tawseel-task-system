@@ -44,81 +44,11 @@ const AdminDashboard: React.FC = () => {
                 supabase.from('routines').select('*, task:task_definitions(*), user:users(*)').order('created_at', { ascending: false })
             ]);
 
-            // If data exists, use it. If not (or error), fall back to mock data for demo
-            if (rolesRes.data && rolesRes.data.length > 0) setRoles(rolesRes.data);
-            else {
-                // Mock Roles
-                setRoles([
-                    { id: '1', name: 'مصمم جرافيك', created_at: new Date().toISOString() },
-                    { id: '2', name: 'مبرمج', created_at: new Date().toISOString() },
-                    { id: '3', name: 'محاسب', created_at: new Date().toISOString() },
-                ]);
-            }
-
-            if (usersRes.data && usersRes.data.length > 0) setUsers(usersRes.data);
-            else {
-                // Mock Users
-                setUsers([
-                    { id: 'demo-admin-id', name: 'مدير النظام', email: 'admin@tawseel.com', password: '', user_type: 'admin', disabled: false, created_at: new Date().toISOString() },
-                    { id: 'demo-employee-id', name: 'أحمد محمد', email: 'employee@tawseel.com', password: '', user_type: 'user', disabled: false, created_at: new Date().toISOString(), role: { id: '1', name: 'مصمم جرافيك', created_at: '' } },
-                    { id: 'demo-employee-2', name: 'سارة خالد', email: 'sara@tawseel.com', password: '', user_type: 'user', disabled: false, created_at: new Date().toISOString(), role: { id: '3', name: 'محاسب', created_at: '' } },
-                ]);
-            }
-
-            if (tasksRes.data && tasksRes.data.length > 0) setTaskDefinitions(tasksRes.data);
-            else {
-                // Mock Tasks
-                setTaskDefinitions([
-                    {
-                        id: 't1',
-                        title: 'تصميم عروض السوشيال ميديا',
-                        description: 'تصميم 3 بوستات للانستقرام وتويتر',
-                        created_by: 'demo-admin-id',
-                        created_at: new Date().toISOString(),
-                        subtasks: [
-                            { id: 'st1', title: 'جمع الصور', description: '' },
-                            { id: 'st2', title: 'التصميم المبدئي', description: '' }
-                        ]
-                    },
-                    {
-                        id: 't2',
-                        title: 'إعداد التقرير المالي',
-                        description: 'تقرير المبيعات لشهر فبراير',
-                        created_by: 'demo-admin-id',
-                        created_at: new Date().toISOString(),
-                        subtasks: []
-                    }
-                ]);
-            }
-
-            if (assignmentsRes.data && assignmentsRes.data.length > 0) setAssignments(assignmentsRes.data);
-            else {
-                // Mock Assignments
-                setAssignments([
-                    {
-                        id: 'a1',
-                        task_id: 't1',
-                        user_id: 'demo-employee-id',
-                        assigned_by: 'demo-admin-id',
-                        assigned_at: new Date().toISOString(),
-                        status: 'pending',
-                        submitted: false,
-                        task: { id: 't1', title: 'تصميم عروض السوشيال ميديا', description: 'تصميم 3 بوستات', subtasks: [], created_by: '', created_at: '' },
-                        user: { id: 'demo-employee-id', name: 'أحمد محمد', email: '', password: '', user_type: 'user', disabled: false, created_at: '' }
-                    },
-                    {
-                        id: 'a2',
-                        task_id: 't2',
-                        user_id: 'demo-employee-id',
-                        assigned_by: 'demo-admin-id',
-                        assigned_at: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-                        status: 'done',
-                        submitted: true,
-                        task: { id: 't2', title: 'إعداد التقرير المالي', description: '', subtasks: [], created_by: '', created_at: '' },
-                        user: { id: 'demo-employee-id', name: 'أحمد محمد', email: '', password: '', user_type: 'user', disabled: false, created_at: '' }
-                    }
-                ]);
-            }
+            if (rolesRes.data) setRoles(rolesRes.data);
+            if (usersRes.data) setUsers(usersRes.data);
+            if (tasksRes.data) setTaskDefinitions(tasksRes.data);
+            if (assignmentsRes.data) setAssignments(assignmentsRes.data);
+            if (routinesRes.data) setRoutines(routinesRes.data);
 
             if (routinesRes.data) setRoutines(routinesRes.data);
 

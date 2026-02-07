@@ -77,44 +77,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
-            // ---------------------------------------------------------
-            // DEMO MODE: Bypass Supabase for preview if credentials match
-            // ---------------------------------------------------------
-            if (email === 'admin@tawseel.com' && password === 'admin123') {
-                const demoAdmin: User = {
-                    id: 'demo-admin-id',
-                    email: 'admin@tawseel.com',
-                    password: '', // Not needed for auth context state
-                    name: 'مدير النظام (تجريبي)',
-                    user_type: 'admin',
-                    disabled: false,
-                    created_at: new Date().toISOString(),
-                    role: undefined
-                };
-                setUser(demoAdmin);
-                localStorage.setItem('tawseel_user', JSON.stringify(demoAdmin));
-                setLastActivity(Date.now());
-                return true;
-            }
-
-            if (email === 'employee@tawseel.com' && password === 'employee123') {
-                const demoEmployee: User = {
-                    id: 'demo-employee-id',
-                    email: 'employee@tawseel.com',
-                    password: '',
-                    name: 'موظف تجريبي',
-                    user_type: 'user',
-                    disabled: false,
-                    created_at: new Date().toISOString(),
-                    role: { id: 'r1', name: 'مصمم جرافيك', created_at: new Date().toISOString() }
-                };
-                setUser(demoEmployee);
-                localStorage.setItem('tawseel_user', JSON.stringify(demoEmployee));
-                setLastActivity(Date.now());
-                return true;
-            }
-            // ---------------------------------------------------------
-
             // Fetch user from database
             const { data: users, error } = await supabase
                 .from('users')

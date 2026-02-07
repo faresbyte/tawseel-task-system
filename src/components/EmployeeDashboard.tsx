@@ -77,65 +77,8 @@ const EmployeeDashboard: React.FC = () => {
             } else {
                 setAssignments(existingAssignments || []);
             }
-
-            // MOCK DATA FALLBACK FOR DEMO
-            if ((!existingAssignments || existingAssignments.length === 0) && (!assignmentsError)) {
-                // If Supabase returns nothing (or we are offline/demo), force some mock data
-                const mockAssignments: Assignment[] = [
-                    {
-                        id: 'demo-a1',
-                        task_id: 't1',
-                        user_id: user.id,
-                        assigned_by: 'admin',
-                        assigned_at: new Date().toISOString(),
-                        status: 'pending',
-                        submitted: false,
-                        task: {
-                            id: 't1',
-                            title: 'مهمة تجريبية: تصميم واجهة',
-                            description: 'هذه مهمة تجريبية تظهر لك لأنك في الوضع التجريبي. قم بتصميم واجهة تسجيل الدخول.',
-                            subtasks: [
-                                { id: 's1', title: 'رسم السكتش', description: '' },
-                                { id: 's2', title: 'اختيار الألوان', description: '' }
-                            ],
-                            created_by: 'admin', created_at: ''
-                        },
-                        user: user
-                    },
-                    {
-                        id: 'demo-a2',
-                        task_id: 't2',
-                        user_id: user.id,
-                        assigned_by: 'admin',
-                        assigned_at: new Date().toISOString(),
-                        status: 'done',
-                        submitted: true,
-                        completed_at: new Date().toISOString(),
-                        task: { id: 't2', title: 'مهمة مكتملة سابقاً', description: 'مثال على مهمة تم إنجازها', subtasks: [], created_by: 'admin', created_at: '' },
-                        user: user
-                    }
-                ];
-                setAssignments(mockAssignments);
-            } else {
-                setAssignments(existingAssignments || []);
-            }
-
         } catch (error) {
             console.error('Error fetching assignments:', error);
-            // Fallback for error state
-            setAssignments([
-                {
-                    id: 'demo-error',
-                    task_id: 'err',
-                    user_id: user.id,
-                    assigned_by: 'admin',
-                    assigned_at: new Date().toISOString(),
-                    status: 'pending',
-                    submitted: false,
-                    task: { id: 'err', title: 'وضع العرض التجريبي', description: 'أنت ترى هذه البيانات لأن الاتصال بقاعدة البيانات غير متوفر حالياً.', subtasks: [], created_by: 'admin', created_at: '' },
-                    user: user
-                }
-            ]);
         } finally {
             setLoading(false);
         }
