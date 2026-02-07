@@ -31,6 +31,8 @@ const StaffManagementTab: React.FC<Props> = ({ roles, users, refetch }) => {
         password: '',
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleCreateRole = async () => {
         if (!newRoleName.trim()) {
             alert('يرجى إدخال اسم الدور');
@@ -64,9 +66,10 @@ const StaffManagementTab: React.FC<Props> = ({ roles, users, refetch }) => {
         }
 
         try {
+            setIsSubmitting(true);
             const hashedPassword = await hashPassword(newUser.password);
 
-            await supabase
+            const { error } = await supabase
                 .from('users')
                 .insert({
                     name: newUser.name,
@@ -77,16 +80,110 @@ const StaffManagementTab: React.FC<Props> = ({ roles, users, refetch }) => {
                     disabled: false,
                 });
 
+            if (error) throw error;
+
+            // Success Updates
             setShowUserModal(false);
             setNewUser({ name: '', email: '', password: '', user_type: 'user', role_id: '' });
-            refetch();
-            alert('تم إنشاء الحساب بنجاح');
+            alert('تم إنشاء الحساب بنجاح! سيظهر في القائمة قريباً.');
+
+            // Trigger refetch in background without blocking UI
+            setTimeout(() => refetch(), 100);
+
         } catch (error) {
             console.error('Error creating user:', error);
-            alert('حدث خطأ');
+            alert('حدث خطأ أثناء إنشاء الحساب. تأكد من عدم تكرار البريد الإلكتروني.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    // ... inside return ...
+
+    {/* User Creation Modal */ }
+    {
+        showUserModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                <div className="bg-white rounded-2xl p-6 max-w-md w-full animate-scale-in max-h-[90vh] overflow-y-auto">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">إنشاء حساب جديد</h3>
+                    <div className="space-y-3">
+                        <input
+                            type="text"
+                            value={newUser.name}
+                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                            placeholder="الاسم الكامل"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            disabled={isSubmitting}
+                        />
+                        <input
+                            type="email"
+                            value={newUser.email}
+                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                            placeholder="البريد الإلكتروني"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            disabled={isSubmitting}
+                        />
+                        <input
+                            type="password"
+                            value={newUser.password}
+                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                            placeholder="كلمة المرور"
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            disabled={isSubmitting}
+                        />
+                        <select
+                            value={newUser.user_type}
+                            onChange={(e) => setNewUser({ ...newUser, user_type: e.target.value as 'admin' | 'user' })}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                            disabled={isSubmitting}
+                        >
+                            <option value="user">موظف</option>
+                            <option value="admin">مدير</option>
+                        </select>
+                        {newUser.user_type === 'user' && (
+                            <select
+                                value={newUser.role_id}
+                                onChange={(e) => setNewUser({ ...newUser, role_id: e.target.value })}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                                disabled={isSubmitting}
+                            >
+                                <option value="">اختر الدور الوظيفي</option>
+                                {roles.map(role => (
+                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                        <button
+                            onClick={handleCreateUser}
+                            disabled={isSubmitting}
+                            className="flex-1 bg-gradient-to-r from-primary to-primary-dark text-white font-bold py-3 rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>جاري الإنشاء...</span>
+                                </>
+                            ) : (
+                                'إنشاء الحساب'
+                            )}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowUserModal(false);
+                                setNewUser({ name: '', email: '', password: '', user_type: 'user', role_id: '' });
+                            }}
+                            disabled={isSubmitting}
+                            className="px-6 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 font-semibold disabled:opacity-50"
+                        >
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
     const handleToggleDisable = async (user: User) => {
         try {
             await supabase

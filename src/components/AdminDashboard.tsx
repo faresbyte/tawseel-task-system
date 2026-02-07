@@ -86,13 +86,14 @@ const AdminDashboard: React.FC = () => {
         { id: 'reports' as TabType, name: 'التقارير', icon: BarChart3 },
     ];
 
-    // Loading indicator inside the content area only
+    // Optimized rendering: Show content immediately, update in background
     const renderContent = () => {
-        if (loading) {
+        // Show a subtle loading indicator only on initial load if data is empty
+        if (loading && users.length === 0 && roles.length === 0) {
             return (
                 <div className="flex flex-col items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-                    <p className="text-gray-500">جاري جلب البيانات...</p>
+                    <p className="text-gray-500">جاري بدء النظام...</p>
                 </div>
             );
         }
