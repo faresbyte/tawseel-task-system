@@ -176,175 +176,177 @@ const EmployeeDashboard: React.FC = () => {
         );
     };
 
-    {/* Header */ }
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-gray-900">توصيل ون</h1>
-                        <p className="text-sm text-gray-500">مهامي اليومية</p>
-                    </div>
-                </div>
-                <button
-                    onClick={logout}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 font-semibold"
-                >
-                    <LogOut className="w-5 h-5" />
-                    <span className="hidden sm:inline">خروج</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    {/* Main Content */ }
-    <main className="max-w-6xl mx-auto px-4 py-8">
-        {loading ? (
-            <div className="flex flex-col items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-                <p className="text-gray-500">جاري تحميل مهامك...</p>
-            </div>
-        ) : (
-            <>
-                {/* Welcome Card */}
-                <div className="glass rounded-2xl p-6 mb-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">
-                        مرحباً، {user?.name}
-                    </h2>
-                    <p className="text-gray-600">
-                        لديك <span className="font-bold text-primary">{assignments.filter(a => a.status === 'pending' || a.status === 'deficient').length}</span> مهمة قيد الانتظار
-                    </p>
-                </div>
-
-                {/* Tasks List */}
-                <div className="space-y-4">
-                    {assignments.length === 0 ? (
-                        <div className="glass rounded-2xl p-12 text-center">
-                            <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 font-semibold">لا توجد مهام لليوم</p>
-                            <p className="text-sm text-gray-400 mt-2">استمتع بيومك! 🎉</p>
+    return (
+        <div className="min-h-screen bg-gray-50">
+            {/* Header */}
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+                <div className="max-w-6xl mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center">
+                                <Clock className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-black text-gray-900">توصيل ون</h1>
+                                <p className="text-sm text-gray-500">مهامي اليومية</p>
+                            </div>
                         </div>
-                    ) : (
-                        assignments.map(assignment => {
-                            const isLocked = assignment.submitted && assignment.status !== 'deficient';
-                            const currentNotes = editingNotes[assignment.id] !== undefined
-                                ? editingNotes[assignment.id]
-                                : assignment.employee_notes || '';
+                        <button
+                            onClick={logout}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 font-semibold"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            <span className="hidden sm:inline">خروج</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
 
-                            return (
-                                <div key={assignment.id} className={`glass rounded-2xl p-6 ${assignment.status === 'deficient' ? 'border-2 border-orange-400' : ''
-                                    }`}>
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                                {assignment.task?.title}
-                                            </h3>
-                                            {assignment.task?.description && (
-                                                <p className="text-gray-600 mb-3">{assignment.task.description}</p>
-                                            )}
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                {getStatusBadge(assignment.status)}
-                                                {assignment.due_date && (
-                                                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold flex items-center gap-1">
-                                                        <Calendar className="w-3 h-3" />
-                                                        {new Date(assignment.due_date).toLocaleDateString('ar-EG')}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+            {/* Main Content */}
+            <main className="max-w-6xl mx-auto px-4 py-8">
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center h-64">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
+                        <p className="text-gray-500">جاري تحميل مهامك...</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Welcome Card */}
+                        <div className="glass rounded-2xl p-6 mb-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-2">
+                                مرحباً، {user?.name}
+                            </h2>
+                            <p className="text-gray-600">
+                                لديك <span className="font-bold text-primary">{assignments.filter(a => a.status === 'pending' || a.status === 'deficient').length}</span> مهمة قيد الانتظار
+                            </p>
+                        </div>
 
-                                    {/* Subtasks */}
-                                    {assignment.task?.subtasks && assignment.task.subtasks.length > 0 && (
-                                        <div className="mb-4 p-4 bg-gray-50 rounded-xl">
-                                            <p className="text-sm font-bold text-gray-700 mb-2">المهام الفرعية:</p>
-                                            <ul className="space-y-1">
-                                                {assignment.task.subtasks.map(subtask => (
-                                                    <li key={subtask.id} className="text-sm text-gray-600 flex items-start gap-2">
-                                                        <span className="text-primary mt-1">•</span>
-                                                        <span>{subtask.title}</span>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
+                        {/* Tasks List */}
+                        <div className="space-y-4">
+                            {assignments.length === 0 ? (
+                                <div className="glass rounded-2xl p-12 text-center">
+                                    <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                                    <p className="text-gray-500 font-semibold">لا توجد مهام لليوم</p>
+                                    <p className="text-sm text-gray-400 mt-2">استمتع بيومك! 🎉</p>
+                                </div>
+                            ) : (
+                                assignments.map(assignment => {
+                                    const isLocked = assignment.submitted && assignment.status !== 'deficient';
+                                    const currentNotes = editingNotes[assignment.id] !== undefined
+                                        ? editingNotes[assignment.id]
+                                        : assignment.employee_notes || '';
 
-                                    {/* Admin Notes (Deficiency) */}
-                                    {assignment.admin_notes && assignment.status === 'deficient' && (
-                                        <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                                            <div className="flex items-start gap-2">
-                                                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                                                <div>
-                                                    <p className="text-sm font-bold text-orange-900 mb-1">ملاحظات المدير:</p>
-                                                    <p className="text-sm text-orange-700">{assignment.admin_notes}</p>
+                                    return (
+                                        <div key={assignment.id} className={`glass rounded-2xl p-6 ${assignment.status === 'deficient' ? 'border-2 border-orange-400' : ''
+                                            }`}>
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex-1">
+                                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                                        {assignment.task?.title}
+                                                    </h3>
+                                                    {assignment.task?.description && (
+                                                        <p className="text-gray-600 mb-3">{assignment.task.description}</p>
+                                                    )}
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        {getStatusBadge(assignment.status)}
+                                                        {assignment.due_date && (
+                                                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold flex items-center gap-1">
+                                                                <Calendar className="w-3 h-3" />
+                                                                {new Date(assignment.due_date).toLocaleDateString('ar-EG')}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
 
-                                    {/* Notes Input */}
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                                            <MessageSquare className="w-4 h-4" />
-                                            ملاحظاتك (روابط، تفاصيل، تبريرات...)
-                                        </label>
-                                        <textarea
-                                            value={currentNotes}
-                                            onChange={(e) => handleUpdateNotes(assignment.id, e.target.value)}
-                                            disabled={isLocked}
-                                            placeholder="أضف ملاحظاتك هنا..."
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-                                            rows={3}
-                                        />
-                                    </div>
+                                            {/* Subtasks */}
+                                            {assignment.task?.subtasks && assignment.task.subtasks.length > 0 && (
+                                                <div className="mb-4 p-4 bg-gray-50 rounded-xl">
+                                                    <p className="text-sm font-bold text-gray-700 mb-2">المهام الفرعية:</p>
+                                                    <ul className="space-y-1">
+                                                        {assignment.task.subtasks.map(subtask => (
+                                                            <li key={subtask.id} className="text-sm text-gray-600 flex items-start gap-2">
+                                                                <span className="text-primary mt-1">•</span>
+                                                                <span>{subtask.title}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
 
-                                    {/* Actions */}
-                                    {!isLocked && (
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleMarkDone(assignment)}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:shadow-lg font-bold"
-                                            >
-                                                <CheckCircle className="w-5 h-5" />
-                                                تم الإنجاز
-                                            </button>
-                                            <button
-                                                onClick={() => handleReject(assignment)}
-                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg font-bold"
-                                            >
-                                                <XCircle className="w-5 h-5" />
-                                                رفض المهمة
-                                            </button>
-                                        </div>
-                                    )}
+                                            {/* Admin Notes (Deficiency) */}
+                                            {assignment.admin_notes && assignment.status === 'deficient' && (
+                                                <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                                                    <div className="flex items-start gap-2">
+                                                        <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                                                        <div>
+                                                            <p className="text-sm font-bold text-orange-900 mb-1">ملاحظات المدير:</p>
+                                                            <p className="text-sm text-orange-700">{assignment.admin_notes}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                    {isLocked && assignment.status === 'done' && (
-                                        <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-center">
-                                            <p className="text-sm font-semibold text-green-700">
-                                                ✅ تم إرسال هذه المهمة للمراجعة
-                                            </p>
-                                        </div>
-                                    )}
+                                            {/* Notes Input */}
+                                            <div className="mb-4">
+                                                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                                                    <MessageSquare className="w-4 h-4" />
+                                                    ملاحظاتك (روابط، تفاصيل، تبريرات...)
+                                                </label>
+                                                <textarea
+                                                    value={currentNotes}
+                                                    onChange={(e) => handleUpdateNotes(assignment.id, e.target.value)}
+                                                    disabled={isLocked}
+                                                    placeholder="أضف ملاحظاتك هنا..."
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                    rows={3}
+                                                />
+                                            </div>
 
-                                    {isLocked && assignment.status === 'rejected' && (
-                                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
-                                            <p className="text-sm font-semibold text-red-700">
-                                                ❌ تم رفض هذه المهمة
-                                            </p>
+                                            {/* Actions */}
+                                            {!isLocked && (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleMarkDone(assignment)}
+                                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:shadow-lg font-bold"
+                                                    >
+                                                        <CheckCircle className="w-5 h-5" />
+                                                        تم الإنجاز
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(assignment)}
+                                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg font-bold"
+                                                    >
+                                                        <XCircle className="w-5 h-5" />
+                                                        رفض المهمة
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {isLocked && assignment.status === 'done' && (
+                                                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-center">
+                                                    <p className="text-sm font-semibold text-green-700">
+                                                        ✅ تم إرسال هذه المهمة للمراجعة
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {isLocked && assignment.status === 'rejected' && (
+                                                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+                                                    <p className="text-sm font-semibold text-red-700">
+                                                        ❌ تم رفض هذه المهمة
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    )}
-                </div>
-            </>
-        )}
-    </main>
-        </div >
+                                    );
+                                })
+                            )}
+                        </div>
+                    </>
+                )}
+            </main>
+        </div>
     );
 };
 
