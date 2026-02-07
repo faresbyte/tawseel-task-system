@@ -12,13 +12,26 @@ const LoginPage: React.FC = () => {
         e.preventDefault();
         setLoading(true);
 
-        const success = await login(email, password);
+        try {
+            // Add a timeout to prevent infinite loading
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('انتهت مهلة الاتصال')), 15000)
+            );
 
-        if (!success) {
-            alert('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+            const loginPromise = login(email, password);
+
+            // Race between login and timeout
+            const success = await Promise.race([loginPromise, timeoutPromise]) as boolean;
+
+            if (!success) {
+                alert('فشل تسجيل الدخول: يرجى التحقق من البريد الإلكتروني وكلمة المرور، أو اتصال الإنترنت.');
+            }
+        } catch (error: any) {
+            console.error('Login error:', error);
+            alert(error.message || 'حدث خطأ غير متوقع أثناء تسجيل الدخول');
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (
